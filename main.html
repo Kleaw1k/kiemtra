@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #e4ec9d;
+            color: rgb(22, 22, 22);
+            padding: 50px;
+        }
+
+        .menu {
+            list-style-type: none;
+            padding: 50px;
+            display: flex;
+            justify-content: center;
+            background-color: #000000;
+            margin: 50px;
+        }
+
+        .menu li {
+            margin: 50 30x;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: white;
+            padding: 15px 20px;
+            transition: background-color 0.3s;
+        }
+
+        .menu a:hover {
+            background-color: #ece2e2;
+        }
+
+        footer {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .form-container {
+            padding: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        @media (max-width: 600px) {
+            .banner {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .menu {
+                flex-direction: column;
+            }
+
+            .menu li {
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="banner">
+            <img src="Icon-Dai-hoc-CMC.webp" alt="Logo Trường" class="logo" style="height: 100px;">
+            <h1 class="system-name">Student Management</h1>
+        </div>
+        <nav>
+            <ul class="menu">
+                <li><a href="Trangchu.html">Trang chủ</a></li>
+                <li><a href="#info">Thông tin</a></li>
+                <li><a href="#student-list" id="view-students">Xem DS</a></li>
+                <li><a href="#add-student" id="add-student-link">Thêm SV</a></li>
+                <li><a href="#login" id="login-link">Đăng nhập</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <section id="login" class="form-container hidden">
+            <h2>Đăng Nhập</h2>
+            <form id="loginForm">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+                <label for="password">Mật khẩu:</label>
+                <input type="password" id="password" required>
+                <button type="submit">Đăng nhập</button>
+            </form>
+        </section>
+        <section id="add-student" class="form-container hidden">
+            <h2>Thêm Sinh Viên</h2>
+            <form id="addStudentForm">
+                <label for="name">Họ tên:</label>
+                <input type="text" id="name" required>
+                <label for="dob">Ngày sinh:</label>
+                <input type="date" id="dob" required>
+                <label for="gpa">Điểm TB:</label>
+                <input type="number" id="gpa" required>
+                <button type="submit">Lưu</button>
+            </form>
+        </section>
+        <section id="student-list" class="form-container hidden">
+            <h2>Danh Sách Sinh Viên</h2>
+            <table id="studentsTable">
+                <thead>
+                    <tr>
+                        <th>Họ tên</th>
+                        <th>MSSV</th>
+                        <th>Giảng viên</th>
+                        <th>Điểm</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dữ liệu sinh viên sẽ được thêm vào đây -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <footer>
+        <p>CMC , Công nghệ thông tin , 84C Nguyễn Thanh Bình</p>
+    </footer>
+
+    <script>
+        const users = {
+            'admin@edu.vn': 'admin',
+            'gv@edu.vn': 'gv',
+            'sv@edu.vn': 'sv'
+        };
+
+        let currentUserRole = null;
+        let students = [];
+
+        // Hiện form đăng nhập
+        document.getElementById('login-link').addEventListener('click', function() {
+            hideAllSections();
+            document.getElementById('login').classList.remove('hidden');
+        });
+
+        // Hiện form thêm sinh viên
+        document.getElementById('add-student-link').addEventListener('click', function() {
+            if (currentUserRole === 'admin' || currentUserRole === 'gv') {
+                hideAllSections();
+                document.getElementById('add-student').classList.remove('hidden');
+            } else {
+                alert('Bạn không có quyền truy cập!');
+            }
+        });
+
+        // Hiện danh sách sinh viên
+        document.getElementById('view-students').addEventListener('click', function() {
+            hideAllSections();
+            document.getElementById('student-list').classList.remove('hidden');
+            updateStudentList();
+        });
+
+        // Đăng nhập
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (users[email] && users[email] === password) {
+                alert('Đăng nhập thành công! Quyền: ' + users[email]);
+                currentUserRole = users[email];
+                hideAllSections();
+                document.getElementById('student-list').classList.remove('hidden');
+                updateStudentList();
+            } else {
+                alert('Email hoặc mật khẩu không đúng!');
+            }
+        });
+
+        // Thêm sinh viên
+        document.getElementById('addStudentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const dob = document.getElementById('dob').value;
+            const gpa = parseFloat(document.getElementById('gpa').value);
+
+            if (gpa > 8.5) {
+                if (confirm('SV này có điểm xuất sắc?')) {
+                    students.push({ name, dob, gpa });
+                    alert('Thông tin đã được lưu!');
+                    updateStudentList();
+                    hideAllSections();
+                    document.getElementById('student-list').classList.remove('hidden');
+                } else {
+                    alert('Quay lại form nhập!');
+                }
+            } else {
+                students.push({ name, dob, gpa });
+                alert('Thông tin đã được lưu!');
+                updateStudentList();
+                hideAllSections();
+                document.getElementById('student-list').classList.remove('hidden');
+            }
+        });
+
+        // Cập nhật danh sách sinh viên
+        function updateStudentList() {
+            const tableBody = document.getElementById('studentsTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = ''; // Xóa nội dung cũ
+
+            students.forEach((student, index) => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = student.name;
+                row.insertCell(1).textContent = index + 1; // Giả sử MSSV là chỉ số sinh viên
+                row.insertCell(2).textContent = 'Giảng viên'; // Thay bằng thông tin thực tế nếu có
+                row.insertCell(3).textContent = student.gpa;
+            });
+        }
+
+        // Ẩn tất cả các phần
+        function hideAllSections() {
+            document.getElementById('login').classList.add('hidden');
+            document.getElementById('add-student').classList.add('hidden');
+            document.getElementById('student-list').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
